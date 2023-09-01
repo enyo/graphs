@@ -25,10 +25,10 @@
   const rowHeight = 50
   const gap = 5
 
-  const color1 = 'pink'
-  const color2 = 'lightblue'
-  const color3 = '#ff6781'
-  const color4 = '#4dc1e7'
+  let color1 = '#ffc0cb'
+  let color2 = '#add8e6'
+  let color3 = '#ff6781'
+  let color4 = '#4dc1e7'
 
   $: height = parsed ? rowHeight * parsed.length + gap * (parsed.length - 1) : 0
 
@@ -103,6 +103,13 @@
   <button on:click={downloadSvg}>Download</button>
 
   <!-- <pre>{svg}</pre> -->
+</div>
+
+<div>
+  Color 1: <input type="color" bind:value={color1} />
+  Color 2: <input type="color" bind:value={color2} />
+  Color 3: <input type="color" bind:value={color3} />
+  Color 4: <input type="color" bind:value={color4} />
 </div>
 
 <style lang="postcss">
