@@ -60,6 +60,7 @@
 </script>
 
 <div>
+  Your data:<br />
   <textarea bind:value={data} />
 
   {#if parsed}
@@ -105,11 +106,19 @@
   <!-- <pre>{svg}</pre> -->
 </div>
 
-<div>
-  Color 1: <input type="color" bind:value={color1} />
-  Color 2: <input type="color" bind:value={color2} />
-  Color 3: <input type="color" bind:value={color3} />
-  Color 4: <input type="color" bind:value={color4} />
+<div class="colors">
+  <label>
+    Color 1: <input type="color" bind:value={color1} />
+  </label>
+  <label>
+    Color 2: <input type="color" bind:value={color2} />
+  </label>
+  <label>
+    Color 3: <input type="color" bind:value={color3} />
+  </label>
+  <label>
+    Color 4: <input type="color" bind:value={color4} />
+  </label>
 </div>
 
 <style lang="postcss">
@@ -124,5 +133,12 @@
   button {
     padding: 1rem 2rem;
     font-size: 2rem;
+  }
+  .colors {
+    margin-top: 3rem;
+  }
+  label {
+    display: block;
+    margin-top: 0.5rem;
   }
 </style>
