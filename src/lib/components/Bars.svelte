@@ -21,9 +21,9 @@
     }
   }
 
-  const width = 600
-  const rowHeight = 50
-  const gap = 5
+  let width = 600
+  let rowHeight = 50
+  let gap = 5
 
   let color1 = '#ffc0cb'
   let color2 = '#add8e6'
@@ -35,7 +35,7 @@
   $: max1 = parsed ? Math.max(...parsed.map((values) => parseFloat(values[0]))) : 0
   $: max2 = parsed ? Math.max(...parsed.map((values) => parseFloat(values[1]))) : 0
 
-  const getWidth = (percentage: string | number) => {
+  const getWidth = (width: number, percentage: string | number) => {
     const value = typeof percentage === 'number' ? percentage : parseFloat(percentage)
     return (value / (max1 + max2)) * width
   }
@@ -73,27 +73,27 @@
     >
       {#each parsed as values, i}
         {@const y = i * (rowHeight + gap)}
-        <g transform="translate({getWidth(max1 - parseInt(values[0]))}, 0)">
-          <rect x="0" {y} fill={color1} width={getWidth(values[0])} height={rowHeight} />
+        <g transform="translate({getWidth(width, max1 - parseInt(values[0]))}, 0)">
+          <rect x="0" {y} fill={color1} width={getWidth(width, values[0])} height={rowHeight} />
           <rect
             fill={color2}
-            x={getWidth(values[0])}
+            x={getWidth(width, values[0])}
             {y}
-            width={getWidth(values[1])}
+            width={getWidth(width, values[1])}
             height={rowHeight}
           />
           <rect
-            x={getWidth(values[0]) - getWidth(values[2])}
+            x={getWidth(width, values[0]) - getWidth(width, values[2])}
             {y}
             fill={color3}
-            width={getWidth(values[2])}
+            width={getWidth(width, values[2])}
             height={rowHeight}
           />
           <rect
-            x={getWidth(values[0])}
+            x={getWidth(width, values[0])}
             {y}
             fill={color4}
-            width={getWidth(values[3])}
+            width={getWidth(width, values[3])}
             height={rowHeight}
           />
         </g>
@@ -106,7 +106,7 @@
   <!-- <pre>{svg}</pre> -->
 </div>
 
-<div class="colors">
+<div class="settings">
   <label>
     Color 1: <input type="color" bind:value={color1} />
   </label>
@@ -118,6 +118,15 @@
   </label>
   <label>
     Color 4: <input type="color" bind:value={color4} />
+  </label>
+  <label>
+    Height: <input type="range" min="10" max="100" bind:value={rowHeight} />
+  </label>
+  <label>
+    Width: <input type="range" min="100" max="1000" bind:value={width} />
+  </label>
+  <label>
+    Gap: <input type="range" min="0" max="30" bind:value={gap} />
   </label>
 </div>
 
@@ -134,7 +143,7 @@
     padding: 1rem 2rem;
     font-size: 2rem;
   }
-  .colors {
+  .settings {
     margin-top: 3rem;
   }
   label {
