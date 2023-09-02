@@ -123,7 +123,7 @@ Your data:<br />
         {#each parsed as values, i}
           {@const y = i * (rowHeight + gap)}
           <g transform="translate({getWidth(width, max1 - values[0])}, {y})">
-            <rect x="0" {y} fill={color1} width={getWidth(width, values[0])} height={rowHeight} />
+            <rect x="0" y="0" fill={color1} width={getWidth(width, values[0])} height={rowHeight} />
             <rect
               fill={color2}
               x={getWidth(width, values[0])}
