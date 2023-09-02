@@ -2,19 +2,30 @@
   import { parse } from 'csv-parse/browser/esm/sync'
   import { tick } from 'svelte'
   import { download } from './download'
+  import { text } from '@sveltejs/kit'
 
-  let data = `40,60,10,5
-30,70,4,20
-20,80,8,17
-70,30,20,4
-40,60,4,22
+  let data = `40%	60%	10%	5%
+30,4%	69,6%	4,0%	20,0%
+20,9%	79,1%	8,0%	17,0%
+70,0%	30,0%	20,0%	4,0%
+40,0%	60,0%	4,0%	22,0%
 `
 
-  let parsed: string[][] = []
+  let parsed: number[][] = []
 
   $: {
     try {
-      parsed = data ? parse(data) : []
+      parsed = data
+        ? parse(data, { delimiter: data.match(/\t/) ? '\t' : ',' }).map((values: string[]) =>
+            values.map((value) => {
+              if (value.match(/,/)) {
+                value = value.replaceAll(/\./g, '').replaceAll(/,/g, '.')
+              }
+
+              return parseFloat(value)
+            }),
+          )
+        : []
     } catch (e) {
       parsed = []
       console.error(e)
@@ -22,6 +33,7 @@
   }
 
   let width = 600
+  const legendWidth = 200
   let rowHeight = 50
   let gap = 5
 
@@ -32,12 +44,11 @@
 
   $: height = parsed ? rowHeight * parsed.length + gap * (parsed.length - 1) : 0
 
-  $: max1 = parsed ? Math.max(...parsed.map((values) => parseFloat(values[0]))) : 0
-  $: max2 = parsed ? Math.max(...parsed.map((values) => parseFloat(values[1]))) : 0
+  $: max1 = parsed ? Math.max(...parsed.map((values) => values[0])) : 0
+  $: max2 = parsed ? Math.max(...parsed.map((values) => values[1])) : 0
 
-  const getWidth = (width: number, percentage: string | number) => {
-    const value = typeof percentage === 'number' ? percentage : parseFloat(percentage)
-    return (value / (max1 + max2)) * width
+  const getWidth = (width: number, percentage: number) => {
+    return (percentage / (max1 + max2)) * width
   }
 
   let svgElement: SVGElement
@@ -57,6 +68,7 @@
     const url = URL.createObjectURL(blob)
     download(url, 'chart.svg')
   }
+  const displayNumber = (num: number) => Math.round(num * 10) / 10
 </script>
 
 Your data:<br />
@@ -96,36 +108,57 @@ Your data:<br />
     <div class="svg">
       <svg
         bind:this={svgElement}
-        viewBox="0 0 {width} {height}"
-        {width}
+        viewBox="0 0 {width + legendWidth} {height}"
+        width={width + legendWidth}
         {height}
         xmlns="http://www.w3.org/2000/svg"
       >
+        <style>
+          text {
+            font-family: sans-serif;
+            font-weight: bold;
+            font-size: 0.875rem;
+          }
+        </style>
         {#each parsed as values, i}
           {@const y = i * (rowHeight + gap)}
-          <g transform="translate({getWidth(width, max1 - parseInt(values[0]))}, 0)">
+          <g transform="translate({getWidth(width, max1 - values[0])}, {y})">
             <rect x="0" {y} fill={color1} width={getWidth(width, values[0])} height={rowHeight} />
             <rect
               fill={color2}
               x={getWidth(width, values[0])}
-              {y}
+              y="0"
               width={getWidth(width, values[1])}
               height={rowHeight}
             />
             <rect
               x={getWidth(width, values[0]) - getWidth(width, values[2])}
-              {y}
+              y="0"
               fill={color3}
               width={getWidth(width, values[2])}
               height={rowHeight}
             />
             <rect
               x={getWidth(width, values[0])}
-              {y}
+              y="0"
               fill={color4}
               width={getWidth(width, values[3])}
               height={rowHeight}
             />
+          </g>
+          <g transform="translate({width + 20}, {y + rowHeight / 2})">
+            <text x="0" y={0} dominant-baseline="middle" fill={color1}>
+              {displayNumber(values[0])}%
+            </text>
+            <text x={legendWidth / 4} y={0} dominant-baseline="middle" fill={color2}>
+              {displayNumber(values[1])}%
+            </text>
+            <text x={(2 * legendWidth) / 4} y={0} dominant-baseline="middle" fill={color3}>
+              {displayNumber(values[2])}%
+            </text>
+            <text x={(3 * legendWidth) / 4} y={0} dominant-baseline="middle" fill={color4}>
+              {displayNumber(values[3])}%
+            </text>
           </g>
         {/each}
       </svg>
